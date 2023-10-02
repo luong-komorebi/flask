@@ -300,20 +300,19 @@ class ScriptInfo:
 
         if self.create_app is not None:
             app = self.create_app()
+        elif self.app_import_path:
+            path, name = (
+                re.split(r":(?![\\/])", self.app_import_path, maxsplit=1) + [None]
+            )[:2]
+            import_name = prepare_import(path)
+            app = locate_app(import_name, name)
         else:
-            if self.app_import_path:
-                path, name = (
-                    re.split(r":(?![\\/])", self.app_import_path, maxsplit=1) + [None]
-                )[:2]
+            for path in ("wsgi.py", "app.py"):
                 import_name = prepare_import(path)
-                app = locate_app(import_name, name)
-            else:
-                for path in ("wsgi.py", "app.py"):
-                    import_name = prepare_import(path)
-                    app = locate_app(import_name, None, raise_if_not_found=False)
+                app = locate_app(import_name, None, raise_if_not_found=False)
 
-                    if app:
-                        break
+                if app:
+                    break
 
         if not app:
             raise NoAppException(
@@ -798,14 +797,14 @@ def _validate_key(ctx, param, value):
                 'When "--cert" is an SSLContext object, "--key is not used.', ctx, param
             )
 
-        if not cert:
+        if cert:
+            ctx.params["cert"] = cert, value
+
+        else:
             raise click.BadParameter('"--cert" must also be specified.', ctx, param)
 
-        ctx.params["cert"] = cert, value
-
-    else:
-        if cert and not (is_adhoc or is_context):
-            raise click.BadParameter('Required when using "--cert".', ctx, param)
+    elif cert and not is_adhoc and not is_context:
+        raise click.BadParameter('Required when using "--cert".', ctx, param)
 
     return value
 

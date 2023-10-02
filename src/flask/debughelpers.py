@@ -131,9 +131,7 @@ def explain_template_loading_attempts(app: App, template, attempts) -> None:
 
         info.append(f"{idx + 1:5}: trying loader of {src_info}")
 
-        for line in _dump_loader_info(loader):
-            info.append(f"       {line}")
-
+        info.extend(f"       {line}" for line in _dump_loader_info(loader))
         if triple is None:
             detail = "no match"
         else:
@@ -150,11 +148,11 @@ def explain_template_loading_attempts(app: App, template, attempts) -> None:
         seems_fishy = True
 
     if blueprint is not None and seems_fishy:
-        info.append(
-            "  The template was looked up from an endpoint that belongs"
-            f" to the blueprint {blueprint!r}."
+        info.extend(
+            (
+                f"  The template was looked up from an endpoint that belongs to the blueprint {blueprint!r}.",
+                "  Maybe you did not place a template in the right folder?",
+                "  See https://flask.palletsprojects.com/blueprints/#templates",
+            )
         )
-        info.append("  Maybe you did not place a template in the right folder?")
-        info.append("  See https://flask.palletsprojects.com/blueprints/#templates")
-
     app.logger.info("\n".join(info))

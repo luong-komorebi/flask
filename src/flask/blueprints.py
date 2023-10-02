@@ -36,10 +36,7 @@ class Blueprint(SansioBlueprint):
         if value is None:
             return None
 
-        if isinstance(value, timedelta):
-            return int(value.total_seconds())
-
-        return value
+        return int(value.total_seconds()) if isinstance(value, timedelta) else value
 
     def send_static_file(self, filename: str) -> Response:
         """The view function used to serve files from

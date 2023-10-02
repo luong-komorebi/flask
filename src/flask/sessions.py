@@ -27,7 +27,7 @@ class SessionMixin(MutableMapping):
 
     @permanent.setter
     def permanent(self, value: bool) -> None:
-        self["_permanent"] = bool(value)
+        self["_permanent"] = value
 
     #: Some implementations can detect whether a session is newly
     #: created, but that is not guaranteed. Use with caution. The mixin
