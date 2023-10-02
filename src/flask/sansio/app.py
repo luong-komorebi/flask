@@ -425,7 +425,7 @@ class App(Scaffold):
             )
 
     @cached_property
-    def name(self) -> str:  # type: ignore
+    def name(self) -> str:    # type: ignore
         """The name of the application.  This is usually the import name
         with the difference that it's guessed from the run file if the
         import name is main.  This name is used as a display name when
@@ -436,9 +436,7 @@ class App(Scaffold):
         """
         if self.import_name == "__main__":
             fn = getattr(sys.modules["__main__"], "__file__", None)
-            if fn is None:
-                return "__main__"
-            return os.path.splitext(os.path.basename(fn))[0]
+            return "__main__" if fn is None else os.path.splitext(os.path.basename(fn))[0]
         return self.import_name
 
     @cached_property
@@ -490,9 +488,7 @@ class App(Scaffold):
 
         .. versionadded:: 0.8
         """
-        root_path = self.root_path
-        if instance_relative:
-            root_path = self.instance_path
+        root_path = self.instance_path if instance_relative else self.root_path
         defaults = dict(self.default_config)
         defaults["DEBUG"] = get_debug_flag()
         return self.config_class(root_path, defaults)
@@ -877,10 +873,7 @@ class App(Scaffold):
         ):
             return True
 
-        if trap_bad_request:
-            return isinstance(e, BadRequest)
-
-        return False
+        return isinstance(e, BadRequest) if trap_bad_request else False
 
     def should_ignore_error(self, error: BaseException | None) -> bool:
         """This is called to figure out if an error should be ignored

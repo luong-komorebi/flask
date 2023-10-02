@@ -41,10 +41,7 @@ def get_load_dotenv(default: bool = True) -> bool:
     """
     val = os.environ.get("FLASK_SKIP_DOTENV")
 
-    if not val:
-        return default
-
-    return val.lower() in ("0", "false", "no")
+    return default if not val else val.lower() in ("0", "false", "no")
 
 
 def stream_with_context(
@@ -369,9 +366,7 @@ def get_flashed_messages(
         request_ctx.flashes = flashes
     if category_filter:
         flashes = list(filter(lambda f: f[0] in category_filter, flashes))
-    if not with_categories:
-        return [x[1] for x in flashes]
-    return flashes
+    return [x[1] for x in flashes] if not with_categories else flashes
 
 
 def _prepare_send_file_kwargs(**kwargs: t.Any) -> dict[str, t.Any]:

@@ -143,14 +143,15 @@ class TestUrlFor:
     def test_url_with_method(self, app, req_ctx):
         from flask.views import MethodView
 
+
+
         class MyView(MethodView):
             def get(self, id=None):
-                if id is None:
-                    return "List"
-                return f"Get {id:d}"
+                return "List" if id is None else f"Get {id:d}"
 
             def post(self):
                 return "Create"
+
 
         myview = MyView.as_view("myview")
         app.add_url_rule("/myview/", methods=["GET"], view_func=myview)

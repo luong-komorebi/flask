@@ -287,11 +287,7 @@ class TaggedJSONSerializer:
 
     def tag(self, value: t.Any) -> dict[str, t.Any]:
         """Convert a value to a tagged representation if necessary."""
-        for tag in self.order:
-            if tag.check(value):
-                return tag.tag(value)
-
-        return value
+        return next((tag.tag(value) for tag in self.order if tag.check(value)), value)
 
     def untag(self, value: dict[str, t.Any]) -> t.Any:
         """Convert a tagged representation back to the original type."""
@@ -300,10 +296,7 @@ class TaggedJSONSerializer:
 
         key = next(iter(value))
 
-        if key not in self.tags:
-            return value
-
-        return self.tags[key].to_python(value[key])
+        return value if key not in self.tags else self.tags[key].to_python(value[key])
 
     def dumps(self, value: t.Any) -> str:
         """Tag the value and dump it to a compact JSON string."""

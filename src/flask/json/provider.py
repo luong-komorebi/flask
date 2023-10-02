@@ -77,13 +77,10 @@ class JSONProvider:
         if args and kwargs:
             raise TypeError("app.json.response() takes either args or kwargs, not both")
 
-        if not args and not kwargs:
+        if args or kwargs:
+            return args[0] if len(args) == 1 else args or kwargs
+        else:
             return None
-
-        if len(args) == 1:
-            return args[0]
-
-        return args or kwargs
 
     def response(self, *args: t.Any, **kwargs: t.Any) -> Response:
         """Serialize the given arguments as JSON, and return a

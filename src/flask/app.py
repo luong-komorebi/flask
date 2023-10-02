@@ -279,10 +279,7 @@ class Flask(App):
         if value is None:
             return None
 
-        if isinstance(value, timedelta):
-            return int(value.total_seconds())
-
-        return value
+        return int(value.total_seconds()) if isinstance(value, timedelta) else value
 
     def send_static_file(self, filename: str) -> Response:
         """The view function used to serve files from
@@ -588,11 +585,7 @@ class Flask(App):
             sn_host, _, sn_port = server_name.partition(":")
 
         if not host:
-            if sn_host:
-                host = sn_host
-            else:
-                host = "127.0.0.1"
-
+            host = sn_host if sn_host else "127.0.0.1"
         if port or port == 0:
             port = int(port)
         elif sn_port:
@@ -722,9 +715,7 @@ class Flask(App):
             return e
 
         handler = self._find_error_handler(e, request.blueprints)
-        if handler is None:
-            return e
-        return self.ensure_sync(handler)(e)
+        return e if handler is None else self.ensure_sync(handler)(e)
 
     def handle_user_exception(
         self, e: Exception
@@ -922,10 +913,7 @@ class Flask(App):
 
         .. versionadded:: 2.0
         """
-        if iscoroutinefunction(func):
-            return self.async_to_sync(func)
-
-        return func
+        return self.async_to_sync(func) if iscoroutinefunction(func) else func
 
     def async_to_sync(
         self, func: t.Callable[..., t.Coroutine]
@@ -1013,9 +1001,7 @@ class Flask(App):
             url_adapter = req_ctx.url_adapter
             blueprint_name = req_ctx.request.blueprint
 
-            # If the endpoint starts with "." and the request matches a
-            # blueprint, the endpoint is relative to the blueprint.
-            if endpoint[:1] == ".":
+            if endpoint.startswith("."):
                 if blueprint_name is not None:
                     endpoint = f"{blueprint_name}{endpoint}"
                 else:
@@ -1166,7 +1152,7 @@ class Flask(App):
 
         # make sure the body is an instance of the response class
         if not isinstance(rv, self.response_class):
-            if isinstance(rv, (str, bytes, bytearray)) or isinstance(rv, _abc_Iterator):
+            if isinstance(rv, (str, bytes, bytearray, _abc_Iterator)):
                 # let the response class set the status and headers instead of
                 # waiting to do it manually, so that the class can handle any
                 # special logic
